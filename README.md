@@ -1,13 +1,13 @@
-# S$^2$FT: Efficient, Scalable and Generalizable LLM Fine-tuning by Structured Sparsity
+# S2FT: Efficient, Scalable and Generalizable LLM Fine-tuning by Structured Sparsity
 
 <div align="center">
   <img src="./figures/s2ft.png" alt="Image 1" style="width: 800px; margin: 0 auto;">
 </div>
-S$^2$FT offers several key advantages over LoRA: **(i) improved OOD performance, (2) enhanced training efficiency (time & memory), (3) better serving scalability (adapter fusion/switch/parallelism)**. These features are particularly valuable in real-world PEFT scenarios, where the goal is to effectively combine knowledge from various domains with the base model's capabilities using limited resource.
+S2FT offers several key advantages over LoRA: (i) improved OOD performance, (2) enhanced training efficiency (time & memory), (3) better serving scalability (adapter fusion/switch/parallelism). These features are particularly valuable in real-world PEFT scenarios, where the goal is to effectively combine knowledge from various domains with the base model's capabilities using limited resource.
 
 ## Installation
 
-### Install S$^2$FT Layers
+### Install S2FT Layers
 ```bash
 python setup.py install
 ```
@@ -19,7 +19,7 @@ pip install -r requirements.txt
 
 ## Usage
 
-Here, we demonstrate how to apply S$^2$FT in training with the LLaMA architecture. See advanced usage in `experiments/train/finetune.py` (Line 266-330) and `experiments/utils/s2_utils.py`.
+Here, we demonstrate how to apply S2FT in training with the LLaMA architecture. See advanced usage in `experiments/train/finetune.py` (Line 266-330) and `experiments/utils/s2_utils.py`.
 
 ### Step 1: Import two basic S2 linear layers
 
@@ -79,9 +79,9 @@ def convert_ffn_layer_to_s2(model, selected_parameters):
 
 ## Experiments
 
-To reproduce S$^2$FT results on commonsense and arithmetic reasoning, refer to the instruction and code available in the `experiments` directory.
+To reproduce S2FT results on the commonsense and arithmetic reasoning dataset, refer to the instruction and code available in the `experiments` directory.
 
-For the efficient implementation of S$^2$FT and the related efficiency analysis code, see the `efficiency` directory.
+For the efficient implementation of S2FT and the related efficiency analysis code, see the `efficiency` directory.
 
 ## Citation
 

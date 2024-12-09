@@ -1,6 +1,6 @@
 # Efficient Implementation
 
-This directory provides an implementation of S$^2$FT to support the partial back-propagation algorithm described in Section 3.3 (see `s2ft.py`). The current implementation is designed for fine-tuning on a single GPU without gradient accumulation, as the original PyTorch framework does not natively support weights and gradients with different shapes.
+This directory provides an implementation of S2FT to support the partial back-propagation algorithm described in Section 3.3 (see `s2ft.py`). The current implementation is designed for fine-tuning on a single GPU without gradient accumulation, as the original PyTorch framework does not natively support weights and gradients with different shapes.
 
 <div align="center">
   <img src="../figures/s2ft_code_box.png" alt="Image 2" style="width: 550px; margin: 0 auto;">
