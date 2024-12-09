@@ -12,12 +12,12 @@ We also provide the code for measuring training efficiency and inference scalabi
 
 1. Training Time
 ```python
-python latency.py --v_ratio 0.026 --o_ratio 0.026 --u_ratio 0.01 --d_ratio 0.01
+python latency.py --v_ratio 0.0 --o_ratio 0.052 --u_ratio 0.0 --d_ratio 0.02
 ```
 
 2. Training Memory
 ```python
-python memory.py --v_ratio 0.026 --o_ratio 0.026 --u_ratio 0.01 --d_ratio 0.01
+python memory.py --v_ratio 0.026 --o_ratio 0.052 --u_ratio 0.01 --d_ratio 0.02
 ```
 
 3. Switch Time on GPU
