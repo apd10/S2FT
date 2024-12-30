@@ -6,6 +6,7 @@ This directory provides the code for reproducing the results in the original pap
 
 ```
 conda create --name s2ft --python=3.10
+conda activate s2ft
 pip install -r ../requirements.txt
 conda activate s2ft
 export CUDA_HOME="/usr/local/cuda"
