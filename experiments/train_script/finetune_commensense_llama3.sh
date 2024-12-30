@@ -36,8 +36,8 @@ deepspeed --include=localhost:0,1,2,3 \
     --val_set_size 120 \
     --eval_step 80 \
     --s2 \
-    --q_ratio 0.0 \
     --v_ratio 0.0 \
+    --o_ratio 0.0 \
     --u_ratio 0.0 \
     --d_ratio 0.03 \
     --data_path  ~/LLM-Adapters/ft-training_set/commonsense_170k.json  \
