@@ -5,7 +5,8 @@ This directory provides the code for reproducing the results in the original pap
 ## Installation
 
 ```
-conda create --name s2ft --file=../environments.yml
+conda create --name s2ft --python=3.10
+pip install -r ../requirements.txt
 conda activate s2ft
 export CUDA_HOME="/usr/local/cuda"
 export LIBRARY_PATH="/usr/local/cuda/lib64:$LIBRARY_PATH"
