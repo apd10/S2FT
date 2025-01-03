@@ -74,8 +74,7 @@ def main(args):
 
     model = create_hf_model(AutoModelForCausalLM,
                         args.model_name_or_path,
-                        tokenizer,
-                        ds_config=None)
+                        tokenizer)
     model = model.to(accelerator.device)
     args.dtype = torch.float16 if args.dtype == 'fp16' else torch.float32 if args.dtype == 'fp32' else torch.bfloat16
     model = model.to(args.dtype)

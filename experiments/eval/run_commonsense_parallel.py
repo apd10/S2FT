@@ -14,13 +14,9 @@ from transformers import (
 from accelerate import Accelerator
 from accelerate.utils import gather_object
 
-from utils.utils import (
-    print_rank_0, 
-    set_random_seed, 
-    load_hf_tokenizer,
-    generate_completions, 
-)
-from utils.model_utils import create_hf_model
+from utils.utils import print_rank_0, set_random_seed
+from utils.model_utils import load_hf_tokenizer, create_hf_model
+from utils.generation_utils import generate_completions
 
 i_prompt = '''<s> Below is an instruction that describes a task. Write a response that appropriately completes the request. 
 
@@ -84,8 +80,7 @@ def main(args):
 
     model = create_hf_model(AutoModelForCausalLM,
                         args.model_name_or_path,
-                        tokenizer,
-                        ds_config=None)
+                        tokenizer)
     model = model.to(accelerator.device)
     args.dtype = torch.float16 if args.dtype == 'fp16' else torch.float32 if args.dtype == 'fp32' else torch.bfloat16
     model = model.to(args.dtype)

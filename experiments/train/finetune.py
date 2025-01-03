@@ -195,6 +195,32 @@ def parse_args():
     parser.add_argument("--o_ratio", type=float, default=0.0)
     parser.add_argument("--u_ratio", type=float, default=0.0)
     parser.add_argument("--d_ratio", type=float, default=0.0)
+
+    # LoRA
+    parser.add_argument(
+        "--lora", action="store_true", help="use LoRA for efficient training."
+    )
+    parser.add_argument(
+        "--dora", action="store_true", help="use DoRA for efficient training."
+    )
+    parser.add_argument("--lora_dim",
+                        type=int,
+                        default=0,
+                        help="If > 0, use LoRA for efficient training.")
+    parser.add_argument("--lora_dropout",
+                        type=float,
+                        default=0.0,
+                        help="LoRA dropout rate.")
+    parser.add_argument("--lora_alpha",
+                        type=float,
+                        default=16.0,
+                        help="lora scaling factor.")
+    parser.add_argument("--lora_module_name",
+                        type=str,
+                        nargs='+',
+                        default=['.layers'],
+                        help="The scope of LoRA.")
+
     ## Tensorboard logging
     parser.add_argument(
         "--enable_tensorboard", action="store_true", help="Enable tensorboard logging"
@@ -328,6 +354,22 @@ def main():
         model = make_model_gradient_checkpointing_compatible(model)
 
         print_rank_0(f"learning rate: {args.learning_rate}", args.global_rank)
+
+    ## Enable LoRA for Fine-tuning
+    elif args.lora:
+        from module.lora import convert_linear_layer_to_lora, only_optimize_lora_parameters
+        print_rank_0("------use LoRA------", args.global_rank)
+        model = convert_linear_layer_to_lora(model, args.lora_module_name, args.lora_dim, lora_scaling = args.lora_alpha, lora_dropout=args.lora_dropout)
+        model = only_optimize_lora_parameters(model)
+        model = make_model_gradient_checkpointing_compatible(model)
+
+    ## Enable DoRA for Fine-tuning
+    elif args.dora:
+        from module.dora import convert_linear_layer_to_dora, only_optimize_dora_parameters
+        print_rank_0("------use DoRA------", args.global_rank)
+        model = convert_linear_layer_to_dora(model, args.lora_module_name, args.lora_dim, lora_scaling = args.lora_alpha, lora_dropout=args.lora_dropout)
+        model = only_optimize_dora_parameters(model)
+        model = make_model_gradient_checkpointing_compatible(model)
 
     ## Load Data
     if len(args.data_path) == 1 and ".json" in args.data_path[0]:
@@ -484,10 +526,11 @@ def main():
             if torch.distributed.get_rank() == 0 and step % 100 == 0:
                 print_throughput(model.model, args, end - start, args.global_rank)
             mean_loss += loss.item()
-            print_rank_0(
-                f"Mean Loss: {mean_loss/current_step_count}",
-                args.global_rank,
-            )
+            if current_step_count % 50 == 0:
+                print_rank_0(
+                    f"Mean Loss: {mean_loss/current_step_count}",
+                    args.global_rank,
+                )
 
             if (
                 current_step_count % args.eval_step == 0
@@ -540,6 +583,14 @@ def main():
         if args.s2:
             print_rank_0("converting s2 to linear layer ...", args.global_rank)
             model = convert_s2_to_linear_layer(model)
+        elif args.lora:
+            from module.lora import convert_lora_to_linear_layer
+            print_rank_0("converting lora to linear layer ...", args.global_rank)
+            model = convert_lora_to_linear_layer(model)   
+        elif args.dora:
+            from module.dora import convert_dora_to_linear_layer
+            print_rank_0("converting dora to linear layer ...", args.global_rank)
+            model = convert_dora_to_linear_layer(model)  
 
         if args.global_rank == 0:
             print_rank_0("saving the model ...", args.global_rank)

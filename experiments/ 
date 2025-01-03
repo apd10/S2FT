@@ -1,0 +1,39 @@
+[2025-01-03 15:19:08,752] [INFO] [real_accelerator.py:219:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+Warning: The cache directory for DeepSpeed Triton autotune, /home/xinyuya2/.triton/autotune, appears to be on an NFS system. While this is generally acceptable, if you experience slowdowns or hanging when DeepSpeed exits, it is recommended to set the TRITON_CACHE_DIR environment variable to a non-NFS path.
+[2025-01-03 15:19:08,820] [INFO] [real_accelerator.py:219:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+Warning: The cache directory for DeepSpeed Triton autotune, /home/xinyuya2/.triton/autotune, appears to be on an NFS system. While this is generally acceptable, if you experience slowdowns or hanging when DeepSpeed exits, it is recommended to set the TRITON_CACHE_DIR environment variable to a non-NFS path.
+[2025-01-03 15:19:09,415] [INFO] [real_accelerator.py:219:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[2025-01-03 15:19:09,426] [INFO] [real_accelerator.py:219:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+Warning: The cache directory for DeepSpeed Triton autotune, /home/xinyuya2/.triton/autotune, appears to be on an NFS system. While this is generally acceptable, if you experience slowdowns or hanging when DeepSpeed exits, it is recommended to set the TRITON_CACHE_DIR environment variable to a non-NFS path.
+Warning: The cache directory for DeepSpeed Triton autotune, /home/xinyuya2/.triton/autotune, appears to be on an NFS system. While this is generally acceptable, if you experience slowdowns or hanging when DeepSpeed exits, it is recommended to set the TRITON_CACHE_DIR environment variable to a non-NFS path.
+<s> Below is an instruction that describes a task. Write a response that appropriately completes the request. 
+
+### Instruction:
+Please choose the correct answer to the question: An astronomer observes that a planet rotates faster after a meteorite impact. Which is the most likely effect of this increase in rotation?
+
+Answer1: Planetary density will decrease. Answer2: Planetary years will become longer. Answer3: Planetary days will become shorter. Answer4: Planetary gravity will become stronger.
+
+Answer format: answer1/answer2/answer3/answer4
+
+### Response:
+
+Loading model and tokenizer...
+tokenizer pad side: left
+Creating model <class 'transformers.models.auto.modeling_auto.AutoModelForCausalLM'> from ./outs/commonsense/lora_llama3/
+model is dtype: torch.bfloat16
+-----GenerationConfig {
+  "bos_token_id": 128000,
+  "eos_token_id": 128001,
+  "pad_token_id": 128001
+}
+-----
+-----{'max_new_tokens': 256, 'generation_config': GenerationConfig {
+  "bos_token_id": 128000,
+  "eos_token_id": 128001,
+  "num_beams": 4,
+  "pad_token_id": 128001,
+  "temperature": 0.1,
+  "top_k": 40,
+  "top_p": 0.75
+}
+}-----

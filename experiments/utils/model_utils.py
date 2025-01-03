@@ -104,11 +104,10 @@ def save_hf_format(model, tokenizer, args, sub_folder=""):
     output_config_file = os.path.join(output_dir, CONFIG_NAME)
     save_dict = model_to_save.state_dict()
     for key in list(save_dict.keys()):
-        if "s2" in key:
+        if "s2" in key or "lora" in key:
             del save_dict[key]
     torch.save(save_dict, output_model_file)
     model_to_save.config.to_json_file(output_config_file)
-    tokenizer.save_vocabulary(output_dir)
 
 def get_optimizer_grouped_parameters(
     model,
@@ -118,7 +117,7 @@ def get_optimizer_grouped_parameters(
         "bias", "layer_norm.weight", "layernorm.weight", "norm.weight",
         "ln_f.weight"
     ],
-    trainable_name_list=['s2'],
+    trainable_name_list=['s2', 'lora_right_weight', 'lora_left_weight'],
 ):  
     optimizer_grouped_parameters = [
         {
