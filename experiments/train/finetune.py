@@ -23,6 +23,8 @@ from torch.utils.data import DataLoader, RandomSampler, SequentialSampler
 from torch.utils.data.distributed import DistributedSampler
 
 from transformers import AutoModelForCausalLM, SchedulerType, get_scheduler
+from composable_ai.extension_layers import create_new_model_from_config_file
+
 
 from utils.s2_utils import (
     convert_ffn_layer_to_s2,
@@ -196,6 +198,16 @@ def parse_args():
     parser.add_argument("--u_ratio", type=float, default=0.0)
     parser.add_argument("--d_ratio", type=float, default=0.0)
 
+    # DEXT
+    parser.add_argument(
+        "--dext", action="store_true", help="use LoRA for efficient training."
+    )
+    
+    parser.add_argument("--dext_config_file",
+                        type=str,
+                        default=None,
+                        help="Extension layer config")
+
     # LoRA
     parser.add_argument(
         "--lora", action="store_true", help="use LoRA for efficient training."
@@ -282,6 +294,7 @@ def main():
     print_rank_0(f"Tokenizer: {tokenizer.model_max_length}", args.global_rank)
 
     print_rank_0(f"Loading model from {args.model_name_or_path}", args.global_rank)
+
     model = create_hf_model(
         AutoModelForCausalLM,
         args.model_name_or_path,
@@ -290,7 +303,13 @@ def main():
     )
 
     ## Enable S2FT for Fine-tuning
-    if args.s2:
+    if args.dext:
+        model.requires_grad_(False) # set core model parameters to frozen state.
+        model = create_new_model_from_config_file(model, args.dext_config_file)
+        print_rank_0("--- use DEXT -----")
+        model = make_model_gradient_checkpointing_compatible(model)
+
+    elif args.s2:
         print_rank_0("------use S2FT------", args.global_rank)
         if args.v_ratio > 0 or args.o_ratio > 0:
             parameters_v = {}
@@ -371,6 +390,7 @@ def main():
         model = only_optimize_dora_parameters(model)
         model = make_model_gradient_checkpointing_compatible(model)
 
+    print(model)
     ## Load Data
     if len(args.data_path) == 1 and ".json" in args.data_path[0]:
         print_rank_0(f"------json Data: {args.data_path[0]}", args.global_rank)
