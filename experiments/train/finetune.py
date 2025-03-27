@@ -23,7 +23,7 @@ from torch.utils.data import DataLoader, RandomSampler, SequentialSampler
 from torch.utils.data.distributed import DistributedSampler
 
 from transformers import AutoModelForCausalLM, SchedulerType, get_scheduler
-from composable_ai.extension_layers import create_new_model_from_config_file
+from composable_ai.extension_layers import create_new_model_from_config_file, save_adapter_model
 
 
 from utils.s2_utils import (
@@ -548,7 +548,7 @@ def main():
             mean_loss += loss.item()
             if current_step_count % 50 == 0:
                 print_rank_0(
-                    f"Mean Loss: {mean_loss/current_step_count}",
+                    f"Mean Loss: {mean_loss/(step+1)}",
                     args.global_rank,
                 )
 
@@ -614,7 +614,11 @@ def main():
 
         if args.global_rank == 0:
             print_rank_0("saving the model ...", args.global_rank)
-            save_hf_format(model, tokenizer, args)
+            if args.dext:
+                os.makedirs(args.output_dir, exist_ok=True)
+                save_adapter_model(model, args.output_dir)
+            else:    
+                save_hf_format(model, tokenizer, args)
 
         torch.save(lr_plot, os.path.join(args.output_dir, "lr_plot.pt"))
 

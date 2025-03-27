@@ -10,6 +10,7 @@ import torch
 from transformers import (
     AutoModelForCausalLM,
     GenerationConfig,
+    AutoTokenizer,
 )
 from accelerate import Accelerator
 from accelerate.utils import gather_object
@@ -17,6 +18,7 @@ from accelerate.utils import gather_object
 from utils.utils import print_rank_0, set_random_seed
 from utils.model_utils import load_hf_tokenizer, create_hf_model
 from utils.generation_utils import generate_completions
+from composable_ai.extension_layers import load_adapter_config,convert_llama
 
 i_prompt = '''<s> Below is an instruction that describes a task. Write a response that appropriately completes the request. 
 
@@ -74,11 +76,23 @@ def main(args):
     print_rank_0(prompts[0])
 
     print_rank_0("Loading model and tokenizer...")
-    tokenizer = load_hf_tokenizer(args.model_name_or_path, fast_tokenizer=True)
+    if args.dext:
+        dext = load_adapter_config(args.model_name_or_path)
+        tokenizer = load_hf_tokenizer(dext.core_model, fast_tokenizer=True)
+    else:
+        tokenizer = load_hf_tokenizer(args.model_name_or_path, fast_tokenizer=True)
     tokenizer.padding_side = "left"
     print_rank_0(f"tokenizer pad side: {tokenizer.padding_side}")
 
-    model = create_hf_model(AutoModelForCausalLM,
+    if args.dext:
+        print_rank_0("Loading DEXT tokenizer ")
+        dext = load_adapter_config(args.model_name_or_path)
+        
+        core_model = create_hf_model(AutoModelForCausalLM, dext.core_model, tokenizer)
+        model = convert_llama(core_model, dext)
+
+    else:
+        model = create_hf_model(AutoModelForCausalLM,
                         args.model_name_or_path,
                         tokenizer)
     model = model.to(accelerator.device)
@@ -157,6 +171,9 @@ if __name__ == "__main__":
                         choices=['fp16', 'bf16', 'fp32'],
                         help='Inference data type')
     parser.add_argument("--per_device_eval_batch_size", type=int, default=16, help="batch size for evaluation.")
+    parser.add_argument(
+        "--dext", action="store_true", help="use LoRA for efficient training."
+    )
     args = parser.parse_args()
 
     main(args) 
