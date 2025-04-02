@@ -56,3 +56,4 @@ triton
 tzdata
 xxhash
 yarl
+dataclasses_json

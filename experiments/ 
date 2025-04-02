@@ -1,30 +1,88 @@
-[2025-01-03 15:19:08,752] [INFO] [real_accelerator.py:219:get_accelerator] Setting ds_accelerator to cuda (auto detect)
-Warning: The cache directory for DeepSpeed Triton autotune, /home/xinyuya2/.triton/autotune, appears to be on an NFS system. While this is generally acceptable, if you experience slowdowns or hanging when DeepSpeed exits, it is recommended to set the TRITON_CACHE_DIR environment variable to a non-NFS path.
-[2025-01-03 15:19:08,820] [INFO] [real_accelerator.py:219:get_accelerator] Setting ds_accelerator to cuda (auto detect)
-Warning: The cache directory for DeepSpeed Triton autotune, /home/xinyuya2/.triton/autotune, appears to be on an NFS system. While this is generally acceptable, if you experience slowdowns or hanging when DeepSpeed exits, it is recommended to set the TRITON_CACHE_DIR environment variable to a non-NFS path.
-[2025-01-03 15:19:09,415] [INFO] [real_accelerator.py:219:get_accelerator] Setting ds_accelerator to cuda (auto detect)
-[2025-01-03 15:19:09,426] [INFO] [real_accelerator.py:219:get_accelerator] Setting ds_accelerator to cuda (auto detect)
-Warning: The cache directory for DeepSpeed Triton autotune, /home/xinyuya2/.triton/autotune, appears to be on an NFS system. While this is generally acceptable, if you experience slowdowns or hanging when DeepSpeed exits, it is recommended to set the TRITON_CACHE_DIR environment variable to a non-NFS path.
-Warning: The cache directory for DeepSpeed Triton autotune, /home/xinyuya2/.triton/autotune, appears to be on an NFS system. While this is generally acceptable, if you experience slowdowns or hanging when DeepSpeed exits, it is recommended to set the TRITON_CACHE_DIR environment variable to a non-NFS path.
+[2025-04-02 21:28:32,120] [INFO] [real_accelerator.py:239:get_accelerator] Setting ds_accelerator to cuda (auto detect)
 <s> Below is an instruction that describes a task. Write a response that appropriately completes the request. 
 
 ### Instruction:
-Please choose the correct answer to the question: An astronomer observes that a planet rotates faster after a meteorite impact. Which is the most likely effect of this increase in rotation?
-
-Answer1: Planetary density will decrease. Answer2: Planetary years will become longer. Answer3: Planetary days will become shorter. Answer4: Planetary gravity will become stronger.
-
-Answer format: answer1/answer2/answer3/answer4
+Mr Boarden is remodeling his bathroom. For every square foot, he needs 24 mosaic tiles. How many mosaic tiles would Mr Boarden need to cover two thirds of his 36 sq ft bathroom?
 
 ### Response:
 
 Loading model and tokenizer...
 tokenizer pad side: left
-Creating model <class 'transformers.models.auto.modeling_auto.AutoModelForCausalLM'> from ./outs/commonsense/lora_llama3/
+Creating model <class 'transformers.models.auto.modeling_auto.AutoModelForCausalLM'> from meta-llama/Llama-3.1-8B
+loading updated weights from ./outs/math/dext/ | Dext=True
+Model is Trained. so not loading gate vectors or chaning top-mlp
+Model is Trained. so not loading gate vectors or chaning top-mlp
+Model is Trained. so not loading gate vectors or chaning top-mlp
+Model is Trained. so not loading gate vectors or chaning top-mlp
+Model is Trained. so not loading gate vectors or chaning top-mlp
+Model is Trained. so not loading gate vectors or chaning top-mlp
+Model is Trained. so not loading gate vectors or chaning top-mlp
+Model is Trained. so not loading gate vectors or chaning top-mlp
+Model is Trained. so not loading gate vectors or chaning top-mlp
+Model is Trained. so not loading gate vectors or chaning top-mlp
+Model is Trained. so not loading gate vectors or chaning top-mlp
+Model is Trained. so not loading gate vectors or chaning top-mlp
+Model is Trained. so not loading gate vectors or chaning top-mlp
+Model is Trained. so not loading gate vectors or chaning top-mlp
+Model is Trained. so not loading gate vectors or chaning top-mlp
+Model is Trained. so not loading gate vectors or chaning top-mlp
+Model is Trained. so not loading gate vectors or chaning top-mlp
+Model is Trained. so not loading gate vectors or chaning top-mlp
+Model is Trained. so not loading gate vectors or chaning top-mlp
+Model is Trained. so not loading gate vectors or chaning top-mlp
+Model is Trained. so not loading gate vectors or chaning top-mlp
+Model is Trained. so not loading gate vectors or chaning top-mlp
+Model is Trained. so not loading gate vectors or chaning top-mlp
+Model is Trained. so not loading gate vectors or chaning top-mlp
+Model is Trained. so not loading gate vectors or chaning top-mlp
+Model is Trained. so not loading gate vectors or chaning top-mlp
+Model is Trained. so not loading gate vectors or chaning top-mlp
+Model is Trained. so not loading gate vectors or chaning top-mlp
+Model is Trained. so not loading gate vectors or chaning top-mlp
+Model is Trained. so not loading gate vectors or chaning top-mlp
+Model is Trained. so not loading gate vectors or chaning top-mlp
+Model is Trained. so not loading gate vectors or chaning top-mlp
+LlamaForCausalLM(
+  (model): LlamaModel(
+    (embed_tokens): Embedding(128264, 4096)
+    (layers): ModuleList(
+      (0-31): 32 x LlamaDecoderLayer(
+        (self_attn): LlamaAttention(
+          (q_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (k_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (v_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (o_proj): Linear(in_features=4096, out_features=4096, bias=False)
+        )
+        (mlp): ExtendedMLP(
+          (core_mlp): LlamaMLP(
+            (gate_proj): Linear(in_features=4096, out_features=14336, bias=False)
+            (up_proj): Linear(in_features=4096, out_features=14336, bias=False)
+            (down_proj): Linear(in_features=14336, out_features=4096, bias=False)
+            (act_fn): SiLU()
+          )
+          (extension_mlp): DomainExtensionLayer(
+            (fc1): Linear(in_features=4096, out_features=256, bias=False)
+            (fc2): Linear(in_features=256, out_features=4096, bias=False)
+            (act): SiLU()
+            (dropout): Dropout(p=0.05, inplace=False)
+          )
+        )
+        (input_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+        (post_attention_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+      )
+    )
+    (norm): LlamaRMSNorm((4096,), eps=1e-05)
+    (rotary_emb): LlamaRotaryEmbedding()
+  )
+  (lm_head): Linear(in_features=4096, out_features=128264, bias=False)
+)
 model is dtype: torch.bfloat16
 -----GenerationConfig {
   "bos_token_id": 128000,
+  "do_sample": true,
   "eos_token_id": 128001,
-  "pad_token_id": 128001
+  "temperature": 0.6,
+  "top_p": 0.9
 }
 -----
 -----{'max_new_tokens': 256, 'generation_config': GenerationConfig {

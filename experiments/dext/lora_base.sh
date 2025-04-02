@@ -4,7 +4,7 @@
 OUTPUT=$1
 ZERO_STAGE=$2
 if [ "$OUTPUT" == "" ]; then
-    OUTPUT=./outs/commonsense/dext_dropout/
+    OUTPUT=./outs/commonsense/lora_llama3
 fi
 if [ "$ZERO_STAGE" == "" ]; then
     ZERO_STAGE=1                    # lets use zero_stage 1 for now
@@ -15,6 +15,7 @@ master_port=$((RANDOM % 5000 + 20000))
 # add offload add master_port if socket error
 deepspeed --include=localhost:0 \
     --master_port $master_port ./train/finetune.py \
+    --offload \
     --model_name_or_path meta-llama/Meta-Llama-3-8B \
     --per_device_train_batch_size 16 \
     --per_device_eval_batch_size 2 \
@@ -34,8 +35,11 @@ deepspeed --include=localhost:0 \
     --instruction_type single \
     --val_set_size 120 \
     --eval_step 50 \
-    --dext \
-    --dext_config_file $PWD/dext/sample_dropout.json \
+    --lora \
+    --lora_dim 64 \
+    --lora_alpha 64 \
+    --lora_dropout 0.05 \
+    --lora_module_name up_proj down_proj \
     --data_path  ~/LLM-Adapters/ft-training_set/commonsense_15k.json  \
     --eval_delay 0 \
     --output_dir $OUTPUT 2> >(tee $OUTPUT/err.log >&2) | tee $OUTPUT/training.log \

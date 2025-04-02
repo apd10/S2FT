@@ -9,6 +9,7 @@ import torch
 
 from transformers import AutoConfig, AutoTokenizer
 from utils.utils import print_rank_0
+from composable_ai.extension_layers import load_adapter_config, convert_llama
 
 def make_model_gradient_checkpointing_compatible(model):
     # Higgingface added this enable input require grads function to make gradient checkpointing work for PEFT optimization
@@ -58,6 +59,9 @@ def load_hf_tokenizer(model_name_or_path,
             {'additional_special_tokens': add_special_tokens})
     return tokenizer
 
+
+
+
 def configure_dropout(model_config, dropout):
     if dropout is not None:
         for key in ('dropout', 'attention_dropout', 'hidden_dropout',
@@ -91,6 +95,15 @@ def create_hf_model(model_class,
         8 *
         math.ceil(len(tokenizer) / 8.0)))  # make the vocab size multiple of 8
 
+    return model
+
+
+def load_dext_adapter_model(core_model, path):
+    stg = path + "/dext_state_dict.pth"
+    dext_config = load_adapter_config(path)
+    model = convert_llama(core_model, dext_config)
+    dext_state_dict = torch.load(stg)
+    model.load_state_dict(dext_state_dict, strict=False)
     return model
 
 def save_hf_format(model, tokenizer, args, sub_folder=""):
