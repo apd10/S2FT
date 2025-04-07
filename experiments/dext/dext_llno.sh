@@ -1,13 +1,13 @@
 #!/bin/bash
 
 budget=$1
-OUTPUT=./outs/math/dext.$budget
+OUTPUT=./outs/math/dext.$budget.llno
 ZERO_STAGE=1                 
 mkdir -p $OUTPUT
 
 master_port=$((RANDOM % 5000 + 20000))
 # add offload add master_port if socket error
-deepspeed --include=localhost:0,1,2,3 \
+deepspeed --include=localhost:0 \
     --master_port $master_port ./train/finetune.py \
     --offload \
     --model_name_or_path meta-llama/Meta-Llama-3-8B \
@@ -18,7 +18,7 @@ deepspeed --include=localhost:0,1,2,3 \
     --weight_decay 0. \
     --num_train_epochs 3 \
     --dtype bf16 \
-    --gradient_accumulation_steps 8 \
+    --gradient_accumulation_steps 32 \
     --lr_scheduler_type linear \
     --num_warmup_steps 100 \
     --seed 0 \
@@ -27,7 +27,8 @@ deepspeed --include=localhost:0,1,2,3 \
     --gradient_checkpointing \
     --save_interval 5000 \
     --instruction_type single \
-    --load_last_model \
+    --val_set_size 120 \
+    --eval_step 50 \
     --dext \
     --dext_config_file $PWD/dext/dext_$budget.json \
     --data_path  ~/LLM-Adapters/ft-training_set/math_10k.json  \
