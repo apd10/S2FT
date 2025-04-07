@@ -27,7 +27,8 @@ deepspeed --include=localhost:0,1,2,3 \
     --gradient_checkpointing \
     --save_interval 5000 \
     --instruction_type single \
-    --load_last_model \
+    --val_set_size 120 \
+    --eval_step 50 \
     --dext \
     --dext_config_file $PWD/dext/dext_$budget.json \
     --data_path  ~/LLM-Adapters/ft-training_set/math_10k.json  \
