@@ -253,6 +253,28 @@ def parse_args():
     return args
 
 
+def save_model(args, model):
+    if args.output_dir is not None:
+        if args.s2:
+            print_rank_0("converting s2 to linear layer ...", args.global_rank)
+            model = convert_s2_to_linear_layer(model)
+        elif args.lora:
+            from module.lora import convert_lora_to_linear_layer
+            print_rank_0("converting lora to linear layer ...", args.global_rank)
+            model = convert_lora_to_linear_layer(model)   
+        elif args.dora:
+            from module.dora import convert_dora_to_linear_layer
+            print_rank_0("converting dora to linear layer ...", args.global_rank)
+            model = convert_dora_to_linear_layer(model)  
+
+        if args.global_rank == 0:
+            print_rank_0("saving the model ...", args.global_rank)
+            if args.dext:
+                os.makedirs(args.output_dir, exist_ok=True)
+                save_adapter_model(model, args.output_dir)
+            else:    
+                save_hf_format(model, tokenizer, args)
+
 def main():
     args = parse_args()
 
@@ -567,8 +589,16 @@ def main():
                     best_val_loss = val_loss
                     if args.global_rank == 0:
                         best_model = copy.deepcopy(model.module).to("cpu")
+                        print("Saving model at step", current_step_count)
+                        save_model(args, best_model)
                     final_saved_model_index = current_step_count
 
+            if (current_step_count - final_saved_model_index) > 0.25 * len(train_dataloader):
+                print_rank_0("No updates since 1/4th Epoch -- breaking")
+                break
+
+        if (current_step_count - final_saved_model_index) > 0.25 * len(train_dataloader):
+            break
         print_rank_0(
             f"Epoch {epoch+1}/{args.num_train_epochs} Train loss: {mean_loss/len(train_dataloader)}",
             args.global_rank,

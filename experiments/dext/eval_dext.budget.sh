@@ -3,8 +3,7 @@
 MODEL=meta-llama/Llama-3.1-8B
 OUTPUT_DIR=./results/math/dext.16M/
 
-datasets=(MultiArith AddSub AQuA SingleEq SVAMP mawps)
-datasets=(gsm8k)
+datasets=(MultiArith AddSub AQuA SingleEq SVAMP mawps gsm8k)
 
 master_port=$((RANDOM % 5000 + 20000))
 for dataset in "${datasets[@]}"; do

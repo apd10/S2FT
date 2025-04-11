@@ -7,11 +7,11 @@ mkdir -p $OUTPUT
 
 master_port=$((RANDOM % 5000 + 20000))
 # add offload add master_port if socket error
-deepspeed --include=localhost:0,1,2,3 \
+deepspeed --include=localhost:0 \
     --master_port $master_port ./train/finetune.py \
     --offload \
     --model_name_or_path meta-llama/Meta-Llama-3-8B \
-    --per_device_train_batch_size 2 \
+    --per_device_train_batch_size 8 \
     --per_device_eval_batch_size 2 \
     --max_seq_len 2048 \
     --learning_rate 2e-4 \
