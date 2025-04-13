@@ -16,7 +16,7 @@ from accelerate import Accelerator
 from accelerate.utils import gather_object
 
 from utils.utils import print_rank_0, set_random_seed
-from utils.model_utils import load_hf_tokenizer, create_hf_model, load_dext_adapter_model
+from utils.model_utils import load_hf_tokenizer, create_hf_model, load_dext_adapter_model, load_lora_adapter_model, load_dora_adapter_model
 from utils.generation_utils import generate_completions
 #from composable_ai.extension_layers import load_adapter_config,convert_llama
 
@@ -88,6 +88,12 @@ def main(args):
         if args.dext:
             print(f"loading updated weights from {args.ft_dir} | Dext=True")
             model = load_dext_adapter_model(model, args.ft_dir)
+        elif args.lora:
+            print(f"loading updated weights from {args.ft_dir} | Lora=True")
+            model = load_lora_adapter_model(model, args.ft_dir)
+        elif args.dora:
+            print(f"loading updated weights from {args.ft_dir} | Dora=True")
+            model = load_dora_adapter_model(model, args.ft_dir)
         else:
             print(f"loading updated weights from {args.ft_dir}")
             state_dict = torch.load(args.ft_dir + "/pytorch_model.bin")

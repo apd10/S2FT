@@ -10,7 +10,7 @@ class DoRALinear(nn.Module):
         super(DoRALinear, self).__init__()
         self.weight = weight
         self.bias = bias
-
+        self.lora_dim = lora_dim
         if lora_dim <= 0:
             raise ValueError(
                 "You are training to use LoRA, whose reduced dim should be larger than 1"
@@ -78,6 +78,8 @@ class DoRALinear(nn.Module):
             base_result = F.linear(input, self.weight, self.bias)
             input = self.lora_dropout(input)
             return base_result + self._apply_dora(input, self.lora_right_weight, self.lora_left_weight, self.lora_scaling)
+    def __repr__(self):
+        return f"DoRALinear(shape={self.weight.shape}, lora_dim={self.lora_dim}, lora_dropout={self.lora_dropout}, scaling={self.lora_scaling})"
 
 def only_optimize_dora_parameters(model):
     # turn off the gradient of all the parameters except the LoRA parameters
@@ -100,6 +102,13 @@ def convert_linear_layer_to_dora(
         module = recursive_getattr(model, name)
         layer = DoRALinear(module.weight, lora_dim, lora_scaling, lora_dropout, module.bias).to(module.weight.device).to(module.weight.dtype)
         recursive_setattr(model, name, layer)
+    model.dora_config = {
+                         'lora_module_name' : ' '.join(part_module_name),
+                         'lora_dim' : lora_dim,
+                         'lora_alpha' : lora_scaling,
+                         'lora_dropout' : lora_dropout,
+                         'is_trained': False}
+
     return model
 
 # convert the LoRA layer to linear layer
@@ -107,4 +116,38 @@ def convert_dora_to_linear_layer(model):
     for module in model.modules():
         if isinstance(module, DoRALinear):
             module.fuse_lora_weight()
+    return model
+
+
+
+def get_adapter_state_dict(model):
+    full_state_dict = model.state_dict()
+    adapter_state_dict = {}
+    for key in full_state_dict.keys():
+        if 'lora' in key:
+            adapter_state_dict[key] = full_state_dict[key]
+    return adapter_state_dict
+
+    
+def save_adapter_model(model, path):
+    import json
+    state_dict = get_adapter_state_dict(model)
+    dora_config = model.dora_config
+    dora_config['is_trained'] = True
+    torch.save(state_dict, path + "/dora_state_dict.pth")
+    with open(path+"/dora_config.json", "w") as f:
+        json.dump(dora_config, f)
+    print(model)
+    print(dora_config)
+
+
+def create_new_model_from_config_file(core_model, lora_config_file):
+    import json
+    with open(lora_config_file, "r") as f:
+        config = json.load(f)
+    model = convert_linear_layer_to_dora(core_model, config['lora_module_name'].split(' '), 
+                                        config['lora_dim'],
+                                        lora_scaling=config['lora_alpha'],
+                                        lora_dropout=config['lora_dropout']
+                                    )
     return model

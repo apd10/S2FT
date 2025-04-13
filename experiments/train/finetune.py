@@ -23,8 +23,9 @@ from torch.utils.data import DataLoader, RandomSampler, SequentialSampler
 from torch.utils.data.distributed import DistributedSampler
 
 from transformers import AutoModelForCausalLM, SchedulerType, get_scheduler
-from composable_ai.extension_layers import create_new_model_from_config_file, save_adapter_model
-
+import composable_ai.extension_layers as DEXT
+import module.lora as LORA
+import module.dora as DORA
 
 from utils.s2_utils import (
     convert_ffn_layer_to_s2,
@@ -215,23 +216,35 @@ def parse_args():
     parser.add_argument(
         "--dora", action="store_true", help="use DoRA for efficient training."
     )
-    parser.add_argument("--lora_dim",
-                        type=int,
-                        default=0,
-                        help="If > 0, use LoRA for efficient training.")
-    parser.add_argument("--lora_dropout",
-                        type=float,
-                        default=0.0,
-                        help="LoRA dropout rate.")
-    parser.add_argument("--lora_alpha",
-                        type=float,
-                        default=16.0,
-                        help="lora scaling factor.")
-    parser.add_argument("--lora_module_name",
+
+    parser.add_argument("--lora_config_file",
                         type=str,
-                        nargs='+',
-                        default=['.layers'],
-                        help="The scope of LoRA.")
+                        default=None,
+                        help="Extension layer config")
+
+
+    parser.add_argument("--dora_config_file",
+                        type=str,
+                        default=None,
+                        help="Extension layer config")
+
+    # parser.add_argument("--lora_dim",
+    #                     type=int,
+    #                     default=0,
+    #                     help="If > 0, use LoRA for efficient training.")
+    # parser.add_argument("--lora_dropout",
+    #                     type=float,
+    #                     default=0.0,
+    #                     help="LoRA dropout rate.")
+    # parser.add_argument("--lora_alpha",
+    #                     type=float,
+    #                     default=16.0,
+    #                     help="lora scaling factor.")
+    # parser.add_argument("--lora_module_name",
+    #                     type=str,
+    #                     nargs='+',
+    #                     default=['.layers'],
+    #                     help="The scope of LoRA.")
 
     ## Tensorboard logging
     parser.add_argument(
@@ -264,20 +277,19 @@ def save_model(args, model):
         if args.s2:
             print_rank_0("converting s2 to linear layer ...", args.global_rank)
             model = convert_s2_to_linear_layer(model)
-        elif args.lora:
-            from module.lora import convert_lora_to_linear_layer
-            print_rank_0("converting lora to linear layer ...", args.global_rank)
-            model = convert_lora_to_linear_layer(model)   
-        elif args.dora:
-            from module.dora import convert_dora_to_linear_layer
-            print_rank_0("converting dora to linear layer ...", args.global_rank)
-            model = convert_dora_to_linear_layer(model)  
-
+            # TODO
         if args.global_rank == 0:
             print_rank_0("saving the model ...", args.global_rank)
             if args.dext:
                 os.makedirs(args.output_dir, exist_ok=True)
-                save_adapter_model(model, args.output_dir)
+                DEXT.save_adapter_model(model, args.output_dir)
+            elif args.lora:
+                os.makedirs(args.output_dir, exist_ok=True)
+                LORA.save_adapter_model(model, args.output_dir)
+            elif args.dora:
+                os.makedirs(args.output_dir, exist_ok=True)
+                DORA.save_adapter_model(model, args.output_dir)
+
             else:    
                 save_hf_format(model, tokenizer, args)
 
@@ -333,10 +345,21 @@ def main():
     ## Enable S2FT for Fine-tuning
     if args.dext:
         model.requires_grad_(False) # set core model parameters to frozen state.
-        model = create_new_model_from_config_file(model, args.dext_config_file)
+        model = DEXT.create_new_model_from_config_file(model, args.dext_config_file)
         print_rank_0("--- use DEXT -----")
         model = make_model_gradient_checkpointing_compatible(model)
-
+    ## Enable LoRA for Fine-tuning
+    elif args.lora:
+        model.requires_grad_(False)
+        model = LORA.create_new_model_from_config_file(model, args.lora_config_file)
+        print_rank_0("------use LoRA------", args.global_rank)
+        model = make_model_gradient_checkpointing_compatible(model)
+    ## Enable DoRA for Fine-tuning
+    elif args.dora:
+        model.requires_grad_(False)
+        model = DORA.create_new_model_from_config_file(model, args.dora_config_file)
+        print_rank_0("------use DoRA------", args.global_rank)
+        model = make_model_gradient_checkpointing_compatible(model)
     elif args.s2:
         print_rank_0("------use S2FT------", args.global_rank)
         if args.v_ratio > 0 or args.o_ratio > 0:
@@ -402,21 +425,9 @@ def main():
 
         print_rank_0(f"learning rate: {args.learning_rate}", args.global_rank)
 
-    ## Enable LoRA for Fine-tuning
-    elif args.lora:
-        from module.lora import convert_linear_layer_to_lora, only_optimize_lora_parameters
-        print_rank_0("------use LoRA------", args.global_rank)
-        model = convert_linear_layer_to_lora(model, args.lora_module_name, args.lora_dim, lora_scaling = args.lora_alpha, lora_dropout=args.lora_dropout)
-        model = only_optimize_lora_parameters(model)
-        model = make_model_gradient_checkpointing_compatible(model)
 
-    ## Enable DoRA for Fine-tuning
-    elif args.dora:
-        from module.dora import convert_linear_layer_to_dora, only_optimize_dora_parameters
-        print_rank_0("------use DoRA------", args.global_rank)
-        model = convert_linear_layer_to_dora(model, args.lora_module_name, args.lora_dim, lora_scaling = args.lora_alpha, lora_dropout=args.lora_dropout)
-        model = only_optimize_dora_parameters(model)
-        model = make_model_gradient_checkpointing_compatible(model)
+
+
     print(model)
     ## Load Data
     if len(args.data_path) == 1 and ".json" in args.data_path[0]:
@@ -634,27 +645,7 @@ def main():
             print_rank_0("only load the last model ...", args.global_rank)
 
         model = best_model.to(device) if best_model else model
-
-        if args.s2:
-            print_rank_0("converting s2 to linear layer ...", args.global_rank)
-            model = convert_s2_to_linear_layer(model)
-        elif args.lora:
-            from module.lora import convert_lora_to_linear_layer
-            print_rank_0("converting lora to linear layer ...", args.global_rank)
-            model = convert_lora_to_linear_layer(model)   
-        elif args.dora:
-            from module.dora import convert_dora_to_linear_layer
-            print_rank_0("converting dora to linear layer ...", args.global_rank)
-            model = convert_dora_to_linear_layer(model)  
-
-        if args.global_rank == 0:
-            print_rank_0("saving the model ...", args.global_rank)
-            if args.dext:
-                os.makedirs(args.output_dir, exist_ok=True)
-                save_adapter_model(model, args.output_dir)
-            else:    
-                save_hf_format(model, tokenizer, args)
-
+        save_model(args, model)
         torch.save(lr_plot, os.path.join(args.output_dir, "lr_plot.pt"))
 
 

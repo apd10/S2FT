@@ -106,6 +106,38 @@ def load_dext_adapter_model(core_model, path):
     model.load_state_dict(dext_state_dict, strict=False)
     return model
 
+def load_lora_adapter_model(core_model, path):
+    import module.lora as LORA
+    stg = path + "/lora_state_dict.pth"
+    cfg = path + "/lora_config.json"
+    with open(cfg, "r") as f:
+        config = json.load(f)
+    model = LORA.convert_linear_layer_to_lora(core_model, config['lora_module_name'].split(' '), 
+                                        config['lora_dim'],
+                                        lora_scaling=config['lora_alpha'],
+                                        lora_dropout=config['lora_dropout']
+                                    )
+    lora_state_dict = torch.load(stg)
+    model.load_state_dict(lora_state_dict, strict=False)
+    return model
+
+
+def load_dora_adapter_model(core_model, path):
+    import module.dora as DORA
+    stg = path + "/dora_state_dict.pth"
+    cfg = path + "/dora_config.json"
+    with open(cfg, "r") as f:
+        config = json.load(f)
+    model = DORA.convert_linear_layer_to_dora(core_model, config['lora_module_name'].split(' '), 
+                                        config['lora_dim'],
+                                        lora_scaling=config['lora_alpha'],
+                                        lora_dropout=config['lora_dropout']
+                                    )
+    dora_state_dict = torch.load(stg)
+    model.load_state_dict(dora_state_dict, strict=False)
+    return model
+
+
 def save_hf_format(model, tokenizer, args, sub_folder=""):
     # used to save huggingface format, so we can use it for hf.from_pretrained
     model_to_save = model.module if hasattr(model, 'module') else model

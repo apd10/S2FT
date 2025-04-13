@@ -1,0 +1,9 @@
+{
+"apply_lora": true,
+"is_trained": false,
+"core_model": "meta-llama/Meta-Llama-3-8B",
+"lora_module_name" : "up_proj down_proj",
+"lora_dim" : 64,
+"lora_alpha" : 128,
+"lora_dropout" : 0.05
+}
