@@ -3,7 +3,7 @@
 "is_trained": false,
 "core_model": "meta-llama/Meta-Llama-3-8B",
 "hidden_size": 4096,
-"ext_total_hidden_size": 128,
+"ext_total_hidden_size": 8,
 "ext_total_num_activated_experts": 1,
 "ext_total_num_experts": 1,
 "ext_num_experts": 1,
