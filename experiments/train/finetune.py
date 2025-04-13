@@ -247,6 +247,12 @@ def parse_args():
         default=500,
         help="save deepspeed engine checkpoint for recover the training",
     )
+    parser.add_argument(
+            "--early_stop_window",
+            type=int,
+            default=-1,
+            help="early_stop_window"
+            )
     parser = deepspeed.add_config_arguments(parser)
     args = parser.parse_args()
 
@@ -411,7 +417,6 @@ def main():
         model = convert_linear_layer_to_dora(model, args.lora_module_name, args.lora_dim, lora_scaling = args.lora_alpha, lora_dropout=args.lora_dropout)
         model = only_optimize_dora_parameters(model)
         model = make_model_gradient_checkpointing_compatible(model)
-
     print(model)
     ## Load Data
     if len(args.data_path) == 1 and ".json" in args.data_path[0]:
@@ -593,11 +598,11 @@ def main():
                         save_model(args, best_model)
                     final_saved_model_index = current_step_count
 
-            if (current_step_count - final_saved_model_index) > 0.25 * len(train_dataloader):
+            if args.early_stop_window > 0 and (current_step_count - final_saved_model_index) > args.early_stop_window * total_training_steps:
                 print_rank_0("No updates since 1/4th Epoch -- breaking")
                 break
 
-        if (current_step_count - final_saved_model_index) > 0.25 * len(train_dataloader):
+        if args.early_stop_window > 0 and (current_step_count - final_saved_model_index) > args.early_stop_window * total_training_steps:
             break
         print_rank_0(
             f"Epoch {epoch+1}/{args.num_train_epochs} Train loss: {mean_loss/len(train_dataloader)}",

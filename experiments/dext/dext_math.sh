@@ -1,7 +1,7 @@
 #!/bin/bash
 
 budget=$1
-OUTPUT=./outs/math/dext.$budget
+OUTPUT=./artifacts/models/math/dext.$budget
 ZERO_STAGE=1                 
 mkdir -p $OUTPUT
 
@@ -11,14 +11,14 @@ deepspeed --include=localhost:0 \
     --master_port $master_port ./train/finetune.py \
     --offload \
     --model_name_or_path meta-llama/Meta-Llama-3-8B \
-    --per_device_train_batch_size 8 \
+    --per_device_train_batch_size 2 \
     --per_device_eval_batch_size 2 \
     --max_seq_len 2048 \
     --learning_rate 2e-4 \
     --weight_decay 0. \
     --num_train_epochs 3 \
     --dtype bf16 \
-    --gradient_accumulation_steps 8 \
+    --gradient_accumulation_steps 32 \
     --lr_scheduler_type linear \
     --num_warmup_steps 100 \
     --seed 0 \
