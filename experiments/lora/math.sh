@@ -27,8 +27,7 @@ deepspeed --include=localhost:0 \
     --gradient_checkpointing \
     --save_interval 5000 \
     --instruction_type single \
-    --val_set_size 120 \
-    --eval_step 50 \
+    --load_last_model \
     --lora \
     --lora_config_file ./lora/lora_$dim.json \
     --data_path  ~/LLM-Adapters/ft-training_set/math_10k.json  \

@@ -1,4 +1,4 @@
-[2025-04-13 04:12:23,799] [INFO] [real_accelerator.py:222:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[2025-04-13 21:47:00,706] [INFO] [real_accelerator.py:239:get_accelerator] Setting ds_accelerator to cuda (auto detect)
 <s> Below is an instruction that describes a task. Write a response that appropriately completes the request. 
 
 ### Instruction:
@@ -9,7 +9,7 @@ Mr Boarden is remodeling his bathroom. For every square foot, he needs 24 mosaic
 Loading model and tokenizer...
 tokenizer pad side: left
 Creating model <class 'transformers.models.auto.modeling_auto.AutoModelForCausalLM'> from meta-llama/Meta-Llama-3-8B
-loading updated weights from artifacts/models/math/dora.64/ | Dora=True
+loading updated weights from artifacts/models/math/lora.2/ | Lora=True
 LlamaForCausalLM(
   (model): LlamaModel(
     (embed_tokens): Embedding(128264, 4096)
@@ -23,8 +23,8 @@ LlamaForCausalLM(
         )
         (mlp): LlamaMLP(
           (gate_proj): Linear(in_features=4096, out_features=14336, bias=False)
-          (up_proj): DoRALinear(shape=torch.Size([14336, 4096]), lora_dim=64, lora_dropout=Dropout(p=0.05, inplace=False), scaling=2.0)
-          (down_proj): DoRALinear(shape=torch.Size([4096, 14336]), lora_dim=64, lora_dropout=Dropout(p=0.05, inplace=False), scaling=2.0)
+          (up_proj): LoRALinear(shape=torch.Size([14336, 4096]), lora_dim=2, lora_dropout=Dropout(p=0.05, inplace=False), scaling=2.0)
+          (down_proj): LoRALinear(shape=torch.Size([4096, 14336]), lora_dim=2, lora_dropout=Dropout(p=0.05, inplace=False), scaling=2.0)
           (act_fn): SiLU()
         )
         (input_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
