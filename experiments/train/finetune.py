@@ -262,7 +262,7 @@ def parse_args():
     )
     parser.add_argument(
             "--early_stop_window",
-            type=int,
+            type=float,
             default=-1,
             help="early_stop_window"
             )
