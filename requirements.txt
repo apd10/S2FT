@@ -47,12 +47,8 @@ slurm-gpustat
 tabulate
 termcolor
 tokenizers
-torch
-torchaudio
-torchvision
 tqdm
 transformers
-triton
 tzdata
 xxhash
 yarl

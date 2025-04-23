@@ -1,15 +1,17 @@
-[2025-04-13 21:47:00,706] [INFO] [real_accelerator.py:239:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[2025-04-23 20:58:07,050] [INFO] [real_accelerator.py:239:get_accelerator] Setting ds_accelerator to cuda (auto detect)
 <s> Below is an instruction that describes a task. Write a response that appropriately completes the request. 
 
 ### Instruction:
-Mr Boarden is remodeling his bathroom. For every square foot, he needs 24 mosaic tiles. How many mosaic tiles would Mr Boarden need to cover two thirds of his 36 sq ft bathroom?
+Please choose the correct answer to fill in the blank to complete the given sentence: Sarah was a much better surgeon than Maria so _ always got the easier cases.
+
+Option1: Sarah Option2: Maria Answer format: option1/option2
 
 ### Response:
 
 Loading model and tokenizer...
 tokenizer pad side: left
-Creating model <class 'transformers.models.auto.modeling_auto.AutoModelForCausalLM'> from meta-llama/Meta-Llama-3-8B
-loading updated weights from artifacts/models/math/lora.2/ | Lora=True
+Creating model <class 'transformers.models.auto.modeling_auto.AutoModelForCausalLM'> from meta-llama/Llama-3.1-8B
+loading updated weights from /home/ubuntu/PEFT_ARTIFACTS/models/commonsense/dora.8 | Dora=True
 LlamaForCausalLM(
   (model): LlamaModel(
     (embed_tokens): Embedding(128264, 4096)
@@ -23,8 +25,8 @@ LlamaForCausalLM(
         )
         (mlp): LlamaMLP(
           (gate_proj): Linear(in_features=4096, out_features=14336, bias=False)
-          (up_proj): LoRALinear(shape=torch.Size([14336, 4096]), lora_dim=2, lora_dropout=Dropout(p=0.05, inplace=False), scaling=2.0)
-          (down_proj): LoRALinear(shape=torch.Size([4096, 14336]), lora_dim=2, lora_dropout=Dropout(p=0.05, inplace=False), scaling=2.0)
+          (up_proj): DoRALinear(shape=torch.Size([14336, 4096]), lora_dim=8, lora_dropout=Dropout(p=0.05, inplace=False), scaling=2.0)
+          (down_proj): DoRALinear(shape=torch.Size([4096, 14336]), lora_dim=8, lora_dropout=Dropout(p=0.05, inplace=False), scaling=2.0)
           (act_fn): SiLU()
         )
         (input_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
@@ -41,7 +43,6 @@ model is dtype: torch.bfloat16
   "bos_token_id": 128000,
   "do_sample": true,
   "eos_token_id": 128001,
-  "max_length": 4096,
   "temperature": 0.6,
   "top_p": 0.9
 }
@@ -56,3 +57,5 @@ model is dtype: torch.bfloat16
   "top_p": 0.75
 }
 }-----
+Saving outputs to /home/ubuntu/NEW_ARTIFACTS/results/dora.8/commonsense//winogrande
+Result 86.0, total: 1267
