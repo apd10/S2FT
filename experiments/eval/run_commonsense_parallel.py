@@ -180,6 +180,8 @@ if __name__ == "__main__":
     parser.add_argument("--per_device_eval_batch_size", type=int, default=16, help="batch size for evaluation.")
     parser.add_argument("--ft_dir", type=str, default=None, help="dir")
     parser.add_argument("--dext", action="store_true")
+    parser.add_argument("--dora", action="store_true")
+    parser.add_argument("--lora", action="store_true")
     args = parser.parse_args()
 
     main(args) 

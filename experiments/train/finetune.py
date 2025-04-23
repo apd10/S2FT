@@ -555,6 +555,7 @@ def main():
         else int(args.eval_delay * total_training_steps)
     )
 
+    print("stopping criterira", args.early_stop_window * total_training_steps)
     for epoch in range(args.num_train_epochs):
         print_rank_0(
             f"Beginning of Epoch {epoch+1}/{args.num_train_epochs}, Total Micro Batches {len(train_dataloader)}",
